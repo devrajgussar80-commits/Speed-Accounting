@@ -34,7 +34,7 @@ def load_env_file() -> None:
             if not clean or clean.startswith("#") or "=" not in clean:
                 continue
             key, value = clean.split("=", 1)
-            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+            os.environ[key.strip()] = value.strip().strip('"').strip("'")
 
 
 load_env_file()
