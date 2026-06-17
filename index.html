@@ -1,0 +1,2812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speed Accounting</title>
+  <script>
+    if (location.protocol === "file:") {
+      location.replace("http://127.0.0.1:8765/");
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+<div class="login-gateway active" id="loginGateway">
+  <div class="startup-panel">
+    <div class="startup-head">
+      <div class="brand-mark">SA</div>
+      <div>
+        <h2>Speed Accounting Login</h2>
+        <p>Login before opening company</p>
+      </div>
+    </div>
+    <div class="startup-actions">
+      <input id="loginUser" placeholder="Username">
+      <input id="loginPass" type="password" placeholder="Password">
+      <button class="primary-btn" id="loginBtn">Login</button>
+    </div>
+  </div>
+</div>
+
+<div class="startup-gateway active" id="startupGateway" role="dialog" aria-modal="true" aria-labelledby="startupGatewayTitle">
+    <div class="startup-panel">
+      <div class="startup-head">
+        <div class="brand-mark" aria-hidden="true">SA</div>
+        <div>
+          <h2 id="startupGatewayTitle">Speed Accounting Gateway</h2>
+          <p>Select company, create company, or restore backup.</p>
+        </div>
+        <button class="ghost-btn compact" id="closeStartupGatewayBtn" type="button" onclick="document.getElementById('startupGateway').classList.remove('active')">Close</button>
+      </div>
+      <div class="startup-actions">
+        <button class="primary-btn" id="startupCreateCompanyBtn" type="button">Create Company</button>
+        <button class="ghost-btn" id="startupRestoreBtn" type="button">Restore Backup</button>
+        <button class="ghost-btn" id="startupContinueBtn" type="button" onclick="document.getElementById('startupGateway').classList.remove('active')">Continue Active</button>
+      </div>
+      <div class="startup-company-list" id="startupCompanyList"></div>
+    </div>
+  </div>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">SA</div>
+        <div>
+          <h1>Speed Accounting</h1>
+          <p>Accounting Workspace</p>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <button class="nav-link active" data-section="dashboard">Dashboard</button>
+        <button class="nav-link" data-section="today-entry">Today Entry</button>
+        <button class="nav-link" data-section="all-entries">All Entries</button>
+        <button class="nav-link" data-section="company">Company</button>
+        <button class="nav-link" data-section="ledgers">Ledgers</button>
+        <button class="nav-link" data-section="stock-items">Stock Items</button>
+        <button class="nav-link" data-section="item-profit">Item Profit</button>
+        <button class="nav-link" data-section="vouchers">Vouchers</button>
+        <button class="nav-link" data-section="ledger-report">Ledger Report</button>
+        <button class="nav-link" data-section="outstanding">Outstanding</button>
+        <button class="nav-link" data-section="invoice-outstanding">Invoice Outstanding</button>
+        <button class="nav-link" data-section="day-book">Day Book</button>
+        <button class="nav-link" data-section="cash-bank-book">Cash/Bank Book</button>
+        <button class="nav-link" data-section="stock-ledger">Stock Ledger</button>
+        <button class="nav-link" data-section="ageing">Ageing</button>
+        <button class="nav-link" data-section="audit-check">Audit Check</button>
+        <button class="nav-link" data-section="invoice">Invoice</button>
+        <button class="nav-link" data-section="gst-reports">GST Reports</button>
+        <button class="nav-link" data-section="trial-balance">Trial Balance</button>
+        <button class="nav-link" data-section="profit-loss">Profit &amp; Loss</button>
+        <button class="nav-link" data-section="balance-sheet">Balance Sheet</button>
+        <button class="nav-link" data-section="customize">Customize</button>
+      </nav>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Indian small business accounting</p>
+          <h2 id="sectionTitle">Dashboard</h2>
+        </div>
+        <div class="shortcut-strip" aria-label="Keyboard shortcuts">
+          <span>F2 Company</span>
+          <span>F3 Ledgers</span>
+          <span>F4 Entries</span>
+          <span>F5 Payment</span>
+          <span>F6 Receipt</span>
+          <span>F7 Contra</span>
+          <span>F8 Sales</span>
+          <span>F9 Purchase</span>
+        </div>
+        <div class="topbar-actions">
+          <span class="backend-pill local" id="backendStatus">Local Mode</span>
+          <span class="backend-pill local" id="rentalStatus">Rental: Not signed in</span>
+          <span class="company-pill" id="activeCompanyName">No company</span>
+          <button class="ghost-btn compact" id="rentalBtn" type="button">Rental</button>
+          <button class="ghost-btn compact" id="resetDemoBtn" type="button">Reset Demo</button>
+          <button class="primary-btn compact" id="fullscreenBtn" type="button">Full Screen</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="view active" id="dashboard">
+          <div class="section-heading">
+            <div>
+                <h3>Gateway of Speed Accounting</h3>
+              <p>Tally-style master, voucher, and report shortcuts with live accounting totals.</p>
+            </div>
+          </div>
+
+          <div class="gateway-grid">
+            <button class="gateway-tile" type="button" data-go-section="company">
+              <span>F2</span>
+              <strong>Company</strong>
+              <small>Create or update company details</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="today-entry">
+              <span>TD</span>
+              <strong>Today Entry</strong>
+              <small>All vouchers saved today</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="all-entries">
+              <span>AE</span>
+              <strong>All Entries</strong>
+              <small>Search, preview, and print every voucher</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="ledgers">
+              <span>F3</span>
+              <strong>Ledgers</strong>
+              <small>Customers, suppliers, cash, bank, GST</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="stock-items">
+              <span>ST</span>
+              <strong>Stock Items</strong>
+              <small>Create inventory items for purchase and sales</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="item-profit">
+              <span>IP</span>
+              <strong>Item Profit</strong>
+              <small>Item-wise sales, cost, and profit</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="sales">
+              <span>F8</span>
+              <strong>Sales Invoice</strong>
+              <small>GST invoice with print</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="credit-note">
+              <span>CN</span>
+              <strong>Credit Note</strong>
+              <small>Sales return and GST reversal</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="purchase">
+              <span>F9</span>
+              <strong>Purchase</strong>
+              <small>Input GST purchase voucher</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="debit-note">
+              <span>DN</span>
+              <strong>Debit Note</strong>
+              <small>Purchase return and input GST reversal</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="payment">
+              <span>F5</span>
+              <strong>Payment</strong>
+              <small>Cash or bank payment</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="receipt">
+              <span>F6</span>
+              <strong>Receipt</strong>
+              <small>Cash or bank receipt</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="outstanding">
+              <span>OS</span>
+              <strong>Outstanding</strong>
+              <small>Lena hai aur dena hai party report</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="invoice-outstanding">
+              <span>IO</span>
+              <strong>Invoice Outstanding</strong>
+              <small>Invoice-wise pending and paid status</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="day-book">
+              <span>DB</span>
+              <strong>Day Book</strong>
+              <small>Daily voucher register</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="stock-ledger">
+              <span>SL</span>
+              <strong>Stock Ledger</strong>
+              <small>Item-wise movement and closing stock</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="audit-check">
+              <span>AC</span>
+              <strong>Audit Check</strong>
+              <small>Find data mismatch and missing links</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="trial-balance">
+              <span>TB</span>
+              <strong>Trial Balance</strong>
+              <small>Balanced debit and credit report</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="balance-sheet">
+              <span>BS</span>
+              <strong>Balance Sheet</strong>
+              <small>Assets and liabilities</small>
+            </button>
+            <button class="gateway-tile" type="button" data-go-section="customize">
+              <span>CU</span>
+              <strong>Customize</strong>
+              <small>Add your own fields and buttons</small>
+            </button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Total Sales</span>
+              <strong id="metricSales">Rs. 0.00</strong>
+              <small>Taxable sales value</small>
+            </article>
+            <article class="metric-card">
+              <span>Total Purchase</span>
+              <strong id="metricPurchase">Rs. 0.00</strong>
+              <small>Taxable purchase value</small>
+            </article>
+            <article class="metric-card">
+              <span>GST Payable</span>
+              <strong id="metricGst">Rs. 0.00</strong>
+              <small>Output GST minus input GST</small>
+            </article>
+            <article class="metric-card">
+              <span>Cash Balance</span>
+              <strong id="metricCash">Rs. 0.00</strong>
+              <small>Cash ledger debit balance</small>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel">
+              <div class="panel-header">
+                <h4>Company Snapshot</h4>
+                <button class="ghost-btn" type="button" data-go-section="company">Edit</button>
+              </div>
+              <div class="summary-list" id="companySummary"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <h4>Recent Transactions</h4>
+                <button class="ghost-btn" type="button" data-go-section="sales">New Invoice</button>
+              </div>
+              <div class="table-wrap compact-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>No.</th>
+                      <th>Party</th>
+                      <th class="num">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentTransactions"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="today-entry">
+          <div class="section-heading">
+            <div>
+              <h3>Today Entry</h3>
+              <p>All vouchers saved for today's date. New entries appear here automatically after saving.</p>
+            </div>
+            <button class="primary-btn" id="refreshTodayBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Today Sales</span>
+              <strong id="todaySalesTotal">Rs. 0.00</strong>
+              <small>Taxable sales value</small>
+            </article>
+            <article class="metric-card">
+              <span>Today Purchase</span>
+              <strong id="todayPurchaseTotal">Rs. 0.00</strong>
+              <small>Taxable purchase value</small>
+            </article>
+            <article class="metric-card">
+              <span>Today Receipts</span>
+              <strong id="todayReceiptTotal">Rs. 0.00</strong>
+              <small>Cash or bank received</small>
+            </article>
+            <article class="metric-card">
+              <span>Today Payments</span>
+              <strong id="todayPaymentTotal">Rs. 0.00</strong>
+              <small>Cash or bank paid</small>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4 id="todayEntryTitle">Today Entry Register</h4>
+              <span class="muted" id="todayEntryCount">0 entries</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Voucher</th>
+                    <th>Party / Ledger</th>
+                    <th>Description</th>
+                    <th class="num">Taxable</th>
+                    <th class="num">GST</th>
+                    <th class="num">Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="todayEntryTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="all-entries">
+          <div class="section-heading">
+            <div>
+              <h3>All Entries</h3>
+              <p>Search every saved voucher, open a preview, and print without leaving this register.</p>
+            </div>
+          </div>
+
+          <div class="form-panel report-filter all-entry-filter">
+            <label>
+              <span>Search Entry</span>
+              <input id="allEntrySearch" type="search" placeholder="Search voucher, party, date, item, amount">
+            </label>
+            <button class="ghost-btn" id="clearAllEntrySearchBtn" type="button">Clear Search</button>
+          </div>
+
+          <div class="all-entry-layout">
+            <article class="panel">
+              <div class="panel-header">
+                <h4>All Entry Register</h4>
+                <span class="muted" id="allEntryCount">0 entries</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>Voucher</th>
+                      <th>Party / Ledger</th>
+                      <th>Description</th>
+                      <th class="num">Amount</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="allEntryTable"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel entry-preview-panel">
+              <div class="panel-header">
+                <h4 id="allEntryPreviewTitle">Entry Preview</h4>
+                <div class="actions">
+                  <button class="table-btn" id="allEntryEditBtn" type="button" disabled>Edit</button>
+                  <button class="table-btn" id="allEntryPrintBtn" type="button" disabled>Print</button>
+                </div>
+              </div>
+              <div class="entry-preview" id="allEntryPreview">
+                <p class="muted">Select an entry from the register to preview it.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="company">
+          <div class="section-heading">
+            <div>
+              <h3>Company</h3>
+              <p>Maintain company details used on invoices and reports.</p>
+            </div>
+          </div>
+
+          <form class="form-panel" id="companyForm">
+            <div class="form-grid">
+              <label>
+                <span>Company Name</span>
+                <input id="companyName" type="text" autocomplete="organization" required>
+              </label>
+              <label>
+                <span>GSTIN</span>
+                <input id="companyGstin" type="text" maxlength="15" placeholder="22AAAAA0000A1Z5">
+              </label>
+              <label>
+                <span>Phone</span>
+                <input id="companyPhone" type="tel" autocomplete="tel">
+              </label>
+              <label>
+                <span>State</span>
+                <select id="companyState"></select>
+              </label>
+              <label class="span-2">
+                <span>Address</span>
+                <textarea id="companyAddress" rows="3"></textarea>
+              </label>
+              <label class="span-2">
+                <span>Bank Details</span>
+                <textarea id="companyBankDetails" rows="3" placeholder="Bank name, account number, IFSC"></textarea>
+              </label>
+              <label>
+                <span>UPI ID</span>
+                <input id="companyUpiId" type="text" placeholder="business@upi">
+              </label>
+              <label>
+                <span>Payment Name</span>
+                <input id="companyPaymentName" type="text" placeholder="Shown on payment box">
+              </label>
+              <label class="span-2">
+                <span>Terms &amp; Conditions</span>
+                <textarea id="companyTerms" rows="3" placeholder="Payment terms, return policy, due date notes"></textarea>
+              </label>
+              <label class="span-2">
+                <span>Declaration</span>
+                <textarea id="companyDeclaration" rows="2" placeholder="Invoice declaration printed below totals"></textarea>
+              </label>
+            </div>
+
+            <div class="settings-card">
+              <div class="panel-header compact">
+                <h4>Logo, Signature &amp; UPI QR</h4>
+                <span class="muted">Printed on invoices and vouchers</span>
+              </div>
+              <div class="upload-grid">
+                <div class="upload-box">
+                  <span>Company Logo</span>
+                  <div class="image-preview" id="companyLogoPreview">No logo</div>
+                  <div class="form-actions mini-actions">
+                    <button class="ghost-btn" id="uploadLogoBtn" type="button">Upload Logo</button>
+                    <button class="danger-btn" id="clearLogoBtn" type="button">Clear</button>
+                  </div>
+                  <input id="companyLogoFile" type="file" accept="image/*" hidden>
+                </div>
+                <div class="upload-box">
+                  <span>Authorised Signature</span>
+                  <div class="image-preview" id="companySignaturePreview">No signature</div>
+                  <div class="form-actions mini-actions">
+                    <button class="ghost-btn" id="uploadSignatureBtn" type="button">Upload Signature</button>
+                    <button class="danger-btn" id="clearSignatureBtn" type="button">Clear</button>
+                  </div>
+                  <input id="companySignatureFile" type="file" accept="image/*" hidden>
+                </div>
+                <div class="upload-box">
+                  <span>UPI QR Image</span>
+                  <div class="image-preview" id="companyUpiQrPreview">No QR</div>
+                  <div class="form-actions mini-actions">
+                    <button class="ghost-btn" id="generateUpiQrBtn" type="button">Generate QR</button>
+                    <button class="ghost-btn" id="uploadUpiQrBtn" type="button">Upload QR</button>
+                    <button class="danger-btn" id="clearUpiQrBtn" type="button">Clear</button>
+                  </div>
+                  <input id="companyUpiQrFile" type="file" accept="image/*" hidden>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <div class="panel-header compact">
+                <h4>Voucher Number Settings</h4>
+                <span class="muted">Set prefixes like INV, PUR, REC, PAY</span>
+              </div>
+              <div class="prefix-grid">
+                <label><span>Sales Invoice</span><input id="prefixSales" type="text" maxlength="8" placeholder="INV"></label>
+                <label><span>Purchase</span><input id="prefixPurchase" type="text" maxlength="8" placeholder="PUR"></label>
+                <label><span>Receipt</span><input id="prefixReceipt" type="text" maxlength="8" placeholder="REC"></label>
+                <label><span>Payment</span><input id="prefixPayment" type="text" maxlength="8" placeholder="PAY"></label>
+                <label><span>Credit Note</span><input id="prefixCreditNote" type="text" maxlength="8" placeholder="CN"></label>
+                <label><span>Debit Note</span><input id="prefixDebitNote" type="text" maxlength="8" placeholder="DN"></label>
+                <label><span>Contra</span><input id="prefixContra" type="text" maxlength="8" placeholder="CON"></label>
+                <label><span>Journal</span><input id="prefixJournal" type="text" maxlength="8" placeholder="JRN"></label>
+                <label><span>Sales Order</span><input id="prefixSalesOrder" type="text" maxlength="8" placeholder="SO"></label>
+                <label><span>Purchase Order</span><input id="prefixPurchaseOrder" type="text" maxlength="8" placeholder="PO"></label>
+                <label><span>Delivery Challan</span><input id="prefixDeliveryChallan" type="text" maxlength="8" placeholder="DC"></label>
+              </div>
+            </div>
+            <div class="custom-fields-panel" id="customFields-company"></div>
+            <div class="form-actions">
+              <button class="primary-btn" type="submit">Save Company</button>
+              <button class="ghost-btn" id="newCompanyBtn" type="button">New Company</button>
+              <button class="ghost-btn" id="reloadCompanyBtn" type="button">Load Companies</button>
+            </div>
+            <div class="custom-button-strip" id="customButtons-company"></div>
+          </form>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Backup &amp; Restore</h4>
+              <span class="muted">Local browser data safety</span>
+            </div>
+            <div class="form-panel embedded-panel">
+              <div class="form-actions">
+                <button class="primary-btn" id="backupDataBtn" type="button">Download Backup</button>
+                <button class="ghost-btn" id="restoreDataBtn" type="button">Restore Backup</button>
+                <input id="restoreFileInput" type="file" accept="application/json,.json" hidden>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Import / Export CSV</h4>
+              <span class="muted">Excel compatible offline data tools</span>
+            </div>
+            <div class="form-panel embedded-panel">
+              <div class="form-actions export-actions">
+                <button class="ghost-btn" id="exportLedgersBtn" type="button">Export Ledgers</button>
+                <button class="ghost-btn" id="exportStockItemsBtn" type="button">Export Stock Items</button>
+                <button class="ghost-btn" id="exportLedgerReportBtn" type="button">Export Ledger Report</button>
+                <button class="ghost-btn" id="exportDayBookBtn" type="button">Export Day Book</button>
+                <button class="ghost-btn" id="exportItemProfitBtn" type="button">Export Item Profit</button>
+                <button class="ghost-btn" id="exportOutstandingBtn" type="button">Export Outstanding</button>
+                <button class="ghost-btn" id="exportStockSummaryBtn" type="button">Export Stock Summary</button>
+                <button class="ghost-btn" id="exportGstBtn" type="button">Export GST</button>
+              </div>
+              <div class="form-actions export-actions">
+                <button class="primary-btn" id="importLedgersBtn" type="button">Import Ledgers CSV</button>
+                <button class="primary-btn" id="importStockItemsBtn" type="button">Import Stock Items CSV</button>
+                <input id="importLedgersFile" type="file" accept=".csv,text/csv" hidden>
+                <input id="importStockItemsFile" type="file" accept=".csv,text/csv" hidden>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" id="companyLoadPanel" hidden>
+            <div class="panel-header">
+              <h4>Saved Companies</h4>
+              <span class="muted" id="companyBookCount">0 companies</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>GSTIN</th>
+                    <th>State</th>
+                    <th>Last Saved</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="companyBookTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="ledgers">
+          <div class="section-heading">
+            <div>
+              <h3>Ledgers</h3>
+              <p>Create customers, suppliers, sales, purchase, cash, bank, and GST ledgers.</p>
+            </div>
+          </div>
+
+          <form class="form-panel" id="ledgerForm">
+            <input id="ledgerEditId" type="hidden">
+            <div class="form-grid">
+              <label>
+                <span>Ledger Name</span>
+                <input id="ledgerName" type="text" required>
+              </label>
+              <label>
+                <span>Ledger Group</span>
+                <select id="ledgerType" required></select>
+              </label>
+              <label>
+                <span>GSTIN</span>
+                <input id="ledgerGstin" type="text" maxlength="15">
+              </label>
+              <label>
+                <span>Phone</span>
+                <input id="ledgerPhone" type="tel">
+              </label>
+              <label>
+                <span>State</span>
+                <select id="ledgerState"></select>
+              </label>
+              <label>
+                <span>Opening Balance</span>
+                <input id="ledgerOpeningBalance" type="number" min="0" step="0.01" value="0">
+              </label>
+              <label>
+                <span>Opening Side</span>
+                <select id="ledgerOpeningSide">
+                  <option value="Dr">Debit</option>
+                  <option value="Cr">Credit</option>
+                </select>
+              </label>
+              <label class="span-2">
+                <span>Address</span>
+                <textarea id="ledgerAddress" rows="2"></textarea>
+              </label>
+            </div>
+            <div class="custom-fields-panel" id="customFields-ledgers"></div>
+            <div class="form-actions">
+              <button class="primary-btn" id="ledgerSubmitBtn" type="submit">Add Ledger</button>
+              <button class="ghost-btn" id="clearLedgerBtn" type="button">Clear</button>
+            </div>
+            <div class="custom-button-strip" id="customButtons-ledgers"></div>
+          </form>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Ledger Master</h4>
+              <span class="muted" id="ledgerCount">0 ledgers</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Group</th>
+                    <th>GSTIN</th>
+                    <th>Phone</th>
+                    <th>State</th>
+                    <th class="num">Opening</th>
+                    <th class="num">Balance</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="stock-items">
+          <div class="section-heading">
+            <div>
+              <h3>Stock Items</h3>
+              <p>Create inventory items here. Purchase and sales item rows will show these items when you press Space in Item Name.</p>
+            </div>
+          </div>
+
+          <form class="form-panel" id="stockItemForm">
+            <input id="stockItemEditId" type="hidden">
+            <div class="form-grid">
+              <label>
+                <span>Item Name</span>
+                <input id="stockItemName" type="text" required>
+              </label>
+              <label>
+                <span>HSN/SAC</span>
+                <input id="stockItemHsn" type="text">
+              </label>
+              <label>
+                <span>Unit</span>
+                <input id="stockItemUnit" type="text" value="Nos">
+              </label>
+              <label>
+                <span>GST %</span>
+                <input id="stockItemGst" type="number" min="0" step="0.01" value="18">
+              </label>
+              <label>
+                <span>Opening Qty</span>
+                <input id="stockItemOpeningQty" type="number" step="0.01" value="0">
+              </label>
+              <label>
+                <span>Opening Rate</span>
+                <input id="stockItemOpeningRate" type="number" min="0" step="0.01" value="0">
+              </label>
+              <label>
+                <span>Purchase Rate</span>
+                <input id="stockItemPurchaseRate" type="number" min="0" step="0.01" value="0">
+              </label>
+              <label>
+                <span>Sale Rate</span>
+                <input id="stockItemSaleRate" type="number" min="0" step="0.01" value="0">
+              </label>
+              <label>
+                <span>Minimum Stock</span>
+                <input id="stockItemMinStock" type="number" min="0" step="0.01" value="0">
+              </label>
+            </div>
+            <div class="form-actions">
+              <button class="primary-btn" id="stockItemSubmitBtn" type="submit">Add Stock Item</button>
+              <button class="ghost-btn" id="clearStockItemBtn" type="button">Clear</button>
+            </div>
+          </form>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Stock Item Master</h4>
+              <span class="muted" id="stockItemCount">0 items</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>HSN/SAC</th>
+                    <th>Unit</th>
+                    <th class="num">GST</th>
+                    <th class="num">Stock</th>
+                    <th class="num">Purchase Rate</th>
+                    <th class="num">Sale Rate</th>
+                    <th class="num">Min Stock</th>
+                    <th>Status</th>
+                    <th class="num">Value</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="stockItemTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Stock Summary</h4>
+              <span class="muted" id="stockSummaryCount">0 items</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>HSN/SAC</th>
+                    <th>Unit</th>
+                    <th class="num">Opening</th>
+                    <th class="num">Inward</th>
+                    <th class="num">Outward</th>
+                    <th class="num">Closing</th>
+                    <th class="num">Rate</th>
+                    <th class="num">Min Stock</th>
+                    <th>Status</th>
+                    <th class="num">Value</th>
+                  </tr>
+                </thead>
+                <tbody id="stockSummaryTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Low Stock Alert</h4>
+              <span class="muted" id="lowStockCount">0 alerts</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Unit</th>
+                    <th class="num">Closing Stock</th>
+                    <th class="num">Minimum Stock</th>
+                    <th class="num">Shortage</th>
+                  </tr>
+                </thead>
+                <tbody id="lowStockTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="item-profit">
+          <div class="section-heading">
+            <div>
+              <h3>Item Profit</h3>
+              <p>Item-wise sales, estimated cost, gross profit, and margin from saved vouchers.</p>
+            </div>
+            <button class="primary-btn" id="refreshItemProfitBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="form-panel report-filter">
+            <label>
+              <span>From Date</span>
+              <input class="report-date-from" type="date">
+            </label>
+            <label>
+              <span>To Date</span>
+              <input class="report-date-to" type="date">
+            </label>
+            <button class="ghost-btn" type="button" data-report-refresh>Apply Period</button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Sales Value</span>
+              <strong id="itemProfitSalesTotal">Rs. 0.00</strong>
+              <small>Taxable sales after returns</small>
+            </article>
+            <article class="metric-card">
+              <span>Estimated Cost</span>
+              <strong id="itemProfitCostTotal">Rs. 0.00</strong>
+              <small>Based on purchase cost</small>
+            </article>
+            <article class="metric-card">
+              <span>Gross Profit</span>
+              <strong id="itemProfitTotal">Rs. 0.00</strong>
+              <small>Sales minus cost</small>
+            </article>
+            <article class="metric-card">
+              <span>Average Margin</span>
+              <strong id="itemProfitMargin">0.00%</strong>
+              <small>Gross profit / sales</small>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Item-wise Profit</h4>
+              <span class="muted" id="itemProfitCount">0 items</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>HSN/SAC</th>
+                    <th>Unit</th>
+                    <th class="num">Qty Sold</th>
+                    <th class="num">Sales Value</th>
+                    <th class="num">Cost Rate</th>
+                    <th class="num">Estimated Cost</th>
+                    <th class="num">Gross Profit</th>
+                    <th class="num">Margin</th>
+                  </tr>
+                </thead>
+                <tbody id="itemProfitTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="sales">
+          <div class="section-heading">
+            <div>
+              <h3>Sales Invoice</h3>
+              <p>Create GST invoices with CGST, SGST, grand total, and print output.</p>
+            </div>
+          </div>
+          <div class="voucher-tabs" aria-label="Accounting voucher tabs">
+            <button type="button" data-go-section="payment">Payment</button>
+            <button type="button" data-go-section="contra">Contra</button>
+            <button type="button" data-go-section="receipt">Receipt</button>
+            <button type="button" data-go-section="journal">Journal</button>
+            <button type="button" data-go-section="sales">Sales</button>
+            <button type="button" data-go-section="purchase">Purchase</button>
+            <button type="button" data-go-section="sales-order">Sales Order</button>
+            <button type="button" data-go-section="purchase-order">Purchase Order</button>
+            <button type="button" data-go-section="delivery-challan">Delivery Challan</button>
+            <button type="button" data-go-section="debit-note">Debit Note</button>
+            <button type="button" data-go-section="credit-note">Credit Note</button>
+          </div>
+
+          <form class="form-panel voucher-form" id="salesForm">
+            <input id="salesEditId" type="hidden">
+            <div class="form-grid">
+              <label>
+                <span>Date</span>
+                <input id="salesDate" type="date" required>
+              </label>
+              <label>
+                <span>Invoice No.</span>
+                <input id="salesNo" type="text" required>
+              </label>
+              <label>
+                <span>Reference No.</span>
+                <input id="salesReference" type="text" placeholder="PO / dispatch / ref no.">
+              </label>
+              <label>
+                <span>Customer</span>
+                <div class="field-row">
+                  <select id="salesCustomer" required></select>
+                  <button class="ghost-btn compact" id="createSalesPartyBtn" type="button">New</button>
+                </div>
+              </label>
+              <label>
+                <span>Sales Ledger</span>
+                <select id="salesLedger" required></select>
+              </label>
+              <label>
+                <span>GST Ledger</span>
+                <select id="salesGstLedger" required></select>
+              </label>
+              <label>
+                <span>Customer State</span>
+                <select id="salesPartyState"></select>
+              </label>
+              <label class="span-2">
+                <span>Customer Address</span>
+                <textarea id="salesPartyAddress" rows="2" placeholder="Customer billing address"></textarea>
+              </label>
+              <label class="span-2">
+                <span>Description</span>
+                <input id="salesDescription" type="text" required>
+              </label>
+            </div>
+            <div class="custom-fields-panel" id="customFields-sales"></div>
+            <div class="items-panel">
+              <div class="items-header">
+                <h4>Item Details</h4>
+                <button class="ghost-btn compact" id="addSalesItemBtn" type="button">Add Item</button>
+              </div>
+              <div class="table-wrap item-table-wrap">
+                <table class="item-entry-table">
+                  <thead>
+                    <tr>
+                      <th>Item Name</th>
+                      <th>HSN/SAC</th>
+                      <th class="num">Quantity</th>
+                      <th>Unit</th>
+                      <th class="num">Rate</th>
+                      <th class="num">GST %</th>
+                      <th class="num">Taxable</th>
+                      <th class="num">CGST</th>
+                      <th class="num">SGST</th>
+                      <th class="num">IGST</th>
+                      <th class="num">Total</th>
+                      <th>Remove</th>
+                    </tr>
+                  </thead>
+                  <tbody id="salesItemsBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="tax-strip">
+              <span>GST Type: <strong id="salesGstMode">CGST + SGST</strong></span>
+              <span>CGST: <strong id="salesCgstAmount">Rs. 0.00</strong></span>
+              <span>SGST: <strong id="salesSgstAmount">Rs. 0.00</strong></span>
+              <span>IGST: <strong id="salesIgstAmount">Rs. 0.00</strong></span>
+              <span>Grand Total: <strong id="salesGrandTotal">Rs. 0.00</strong></span>
+            </div>
+            <div class="form-actions">
+              <button class="primary-btn" id="salesSubmitBtn" type="submit">Save Invoice</button>
+              <button class="ghost-btn" id="clearSalesBtn" type="button">Clear</button>
+              <button class="ghost-btn" id="printSalesBtn" type="button">Print</button>
+            </div>
+            <div class="custom-button-strip" id="customButtons-sales"></div>
+          </form>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Sales Register</h4>
+              <span class="muted" id="salesCount">0 invoices</span>
+            </div>
+            <div class="register-filter">
+              <label>
+                <span>Search</span>
+                <input id="salesRegisterSearch" type="search" placeholder="Invoice, customer, item, amount">
+              </label>
+              <label>
+                <span>Customer</span>
+                <select id="salesRegisterParty"></select>
+              </label>
+              <label>
+                <span>Item</span>
+                <input id="salesRegisterItem" type="search" placeholder="Item name / HSN">
+              </label>
+              <label>
+                <span>From</span>
+                <input id="salesRegisterFrom" type="date">
+              </label>
+              <label>
+                <span>To</span>
+                <input id="salesRegisterTo" type="date">
+              </label>
+              <button class="ghost-btn compact" id="clearSalesRegisterFilter" type="button">Clear</button>
+            </div>
+            <div class="register-summary" id="salesRegisterSummary">
+              <span>Qty: <strong>0</strong></span>
+              <span>Taxable: <strong>Rs. 0.00</strong></span>
+              <span>GST: <strong>Rs. 0.00</strong></span>
+              <span>Total: <strong>Rs. 0.00</strong></span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Invoice</th>
+                    <th>Customer</th>
+                    <th>Description</th>
+                    <th class="num">Taxable</th>
+                    <th class="num">GST</th>
+                    <th class="num">Total</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="salesTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="purchase">
+          <div class="section-heading">
+            <div>
+              <h3>Purchase Voucher</h3>
+              <p>Record supplier purchases and input GST credit.</p>
+            </div>
+          </div>
+          <div class="voucher-tabs" aria-label="Accounting voucher tabs">
+            <button type="button" data-go-section="payment">Payment</button>
+            <button type="button" data-go-section="contra">Contra</button>
+            <button type="button" data-go-section="receipt">Receipt</button>
+            <button type="button" data-go-section="journal">Journal</button>
+            <button type="button" data-go-section="sales">Sales</button>
+            <button type="button" data-go-section="purchase">Purchase</button>
+            <button type="button" data-go-section="sales-order">Sales Order</button>
+            <button type="button" data-go-section="purchase-order">Purchase Order</button>
+            <button type="button" data-go-section="delivery-challan">Delivery Challan</button>
+            <button type="button" data-go-section="debit-note">Debit Note</button>
+            <button type="button" data-go-section="credit-note">Credit Note</button>
+          </div>
+
+          <form class="form-panel voucher-form" id="purchaseForm">
+            <input id="purchaseEditId" type="hidden">
+            <div class="form-grid">
+              <label>
+                <span>Date</span>
+                <input id="purchaseDate" type="date" required>
+              </label>
+              <label>
+                <span>Voucher No.</span>
+                <input id="purchaseNo" type="text" required>
+              </label>
+              <label>
+                <span>Reference No.</span>
+                <input id="purchaseReference" type="text" placeholder="Supplier invoice / order no.">
+              </label>
+              <label>
+                <span>Supplier</span>
+                <div class="field-row">
+                  <select id="purchaseSupplier" required></select>
+                  <button class="ghost-btn compact" id="createPurchasePartyBtn" type="button">New</button>
+                </div>
+              </label>
+              <label>
+                <span>Purchase Ledger</span>
+                <select id="purchaseLedger" required></select>
+              </label>
+              <label>
+                <span>GST Ledger</span>
+                <select id="purchaseGstLedger" required></select>
+              </label>
+              <label>
+                <span>Supplier State</span>
+                <select id="purchasePartyState"></select>
+              </label>
+              <label class="span-2">
+                <span>Supplier Address</span>
+                <textarea id="purchasePartyAddress" rows="2" placeholder="Supplier billing address"></textarea>
+              </label>
+              <label class="span-2">
+                <span>Description</span>
+                <input id="purchaseDescription" type="text" required>
+              </label>
+            </div>
+            <div class="custom-fields-panel" id="customFields-purchase"></div>
+            <div class="items-panel">
+              <div class="items-header">
+                <h4>Item Details</h4>
+                <button class="ghost-btn compact" id="addPurchaseItemBtn" type="button">Add Item</button>
+              </div>
+              <div class="table-wrap item-table-wrap">
+                <table class="item-entry-table">
+                  <thead>
+                    <tr>
+                      <th>Item Name</th>
+                      <th>HSN/SAC</th>
+                      <th class="num">Quantity</th>
+                      <th>Unit</th>
+                      <th class="num">Rate</th>
+                      <th class="num">GST %</th>
+                      <th class="num">Taxable</th>
+                      <th class="num">CGST</th>
+                      <th class="num">SGST</th>
+                      <th class="num">IGST</th>
+                      <th class="num">Total</th>
+                      <th>Remove</th>
+                    </tr>
+                  </thead>
+                  <tbody id="purchaseItemsBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="tax-strip">
+              <span>GST Type: <strong id="purchaseGstMode">CGST + SGST</strong></span>
+              <span>CGST: <strong id="purchaseCgstAmount">Rs. 0.00</strong></span>
+              <span>SGST: <strong id="purchaseSgstAmount">Rs. 0.00</strong></span>
+              <span>IGST: <strong id="purchaseIgstAmount">Rs. 0.00</strong></span>
+              <span>Grand Total: <strong id="purchaseGrandTotal">Rs. 0.00</strong></span>
+            </div>
+            <div class="form-actions">
+              <button class="primary-btn" id="purchaseSubmitBtn" type="submit">Save Purchase</button>
+              <button class="ghost-btn" id="clearPurchaseBtn" type="button">Clear</button>
+              <button class="ghost-btn" id="printPurchaseBtn" type="button">Print</button>
+            </div>
+            <div class="custom-button-strip" id="customButtons-purchase"></div>
+          </form>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Purchase Register</h4>
+              <span class="muted" id="purchaseCount">0 vouchers</span>
+            </div>
+            <div class="register-filter">
+              <label>
+                <span>Search</span>
+                <input id="purchaseRegisterSearch" type="search" placeholder="Voucher, supplier, item, amount">
+              </label>
+              <label>
+                <span>Supplier</span>
+                <select id="purchaseRegisterParty"></select>
+              </label>
+              <label>
+                <span>Item</span>
+                <input id="purchaseRegisterItem" type="search" placeholder="Item name / HSN">
+              </label>
+              <label>
+                <span>From</span>
+                <input id="purchaseRegisterFrom" type="date">
+              </label>
+              <label>
+                <span>To</span>
+                <input id="purchaseRegisterTo" type="date">
+              </label>
+              <button class="ghost-btn compact" id="clearPurchaseRegisterFilter" type="button">Clear</button>
+            </div>
+            <div class="register-summary" id="purchaseRegisterSummary">
+              <span>Qty: <strong>0</strong></span>
+              <span>Taxable: <strong>Rs. 0.00</strong></span>
+              <span>GST: <strong>Rs. 0.00</strong></span>
+              <span>Total: <strong>Rs. 0.00</strong></span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Voucher</th>
+                    <th>Supplier</th>
+                    <th>Description</th>
+                    <th class="num">Taxable</th>
+                    <th class="num">GST</th>
+                    <th class="num">Total</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="purchaseTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="payment">
+          <div class="section-heading">
+            <div>
+              <h3>Payment Voucher</h3>
+              <p>Record payments from cash or bank to any ledger.</p>
+            </div>
+          </div>
+          <div class="voucher-tabs" aria-label="Accounting voucher tabs">
+            <button type="button" data-go-section="payment">Payment</button>
+            <button type="button" data-go-section="contra">Contra</button>
+            <button type="button" data-go-section="receipt">Receipt</button>
+            <button type="button" data-go-section="journal">Journal</button>
+            <button type="button" data-go-section="sales">Sales</button>
+            <button type="button" data-go-section="purchase">Purchase</button>
+            <button type="button" data-go-section="sales-order">Sales Order</button>
+            <button type="button" data-go-section="purchase-order">Purchase Order</button>
+            <button type="button" data-go-section="delivery-challan">Delivery Challan</button>
+            <button type="button" data-go-section="debit-note">Debit Note</button>
+            <button type="button" data-go-section="credit-note">Credit Note</button>
+          </div>
+
+          <form class="form-panel" id="paymentForm">
+            <input id="paymentEditId" type="hidden">
+            <div class="form-grid">
+              <label>
+                <span>Date</span>
+                <input id="paymentDate" type="date" required>
+              </label>
+              <label>
+                <span>Voucher No.</span>
+                <input id="paymentNo" type="text" required>
+              </label>
+              <label>
+                <span>Reference No.</span>
+                <input id="paymentReference" type="text" placeholder="Cheque / UTR / ref no.">
+              </label>
+              <label>
+                <span>Paid From</span>
+                <select id="paymentAccount" required></select>
+              </label>
+              <label>
+                <span>Payee Ledger</span>
+                <select id="paymentParty" required></select>
+                <small class="party-balance-hint" id="paymentPartyHint"></small>
+              </label>
+              <label>
+                <span>Amount</span>
+                <input id="paymentAmount" type="number" min="0" step="0.01" required>
+              </label>
+              <label>
+                <span>Adjust Against</span>
+                <select id="paymentAdjustVoucher"></select>
+              </label>
+              <label class="span-2">
+                <span>Narration</span>
+                <input id="paymentNarration" type="text" required>
+              </label>
+            </div>
+            <div class="outstanding-strip" id="paymentOutstanding">
+              <span>Ledger Balance: <strong id="paymentLedgerBalance">Rs. 0.00</strong></span>
+              <span>Lena Hai: <strong id="paymentReceivable">Rs. 0.00</strong></span>
+              <span>Dena Hai: <strong id="paymentPayable">Rs. 0.00</strong></span>
+              <span>Payment Ke Baad: <strong id="paymentAfterBalance">Rs. 0.00</strong></span>
+            </div>
+            <div class="party-open-list" id="paymentOpenList"></div>
+            <div class="custom-fields-panel" id="customFields-payment"></div>
+            <div class="form-actions">
+              <button class="primary-btn" id="paymentSubmitBtn" type="submit">Save Payment</button>
+              <button class="ghost-btn" id="clearPaymentBtn" type="button">Clear</button>
+              <button class="ghost-btn" id="printPaymentBtn" type="button">Print</button>
+            </div>
+            <div class="custom-button-strip" id="customButtons-payment"></div>
+          </form>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Payment Register</h4>
+              <span class="muted" id="paymentCount">0 vouchers</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Voucher</th>
+                    <th>Paid From</th>
+                    <th>Payee</th>
+                    <th>Narration</th>
+                    <th class="num">Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="paymentTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="contra">
+          <div class="section-heading">
+            <div>
+              <h3>Contra Voucher</h3>
+              <p>Record cash and bank transfers within the business.</p>
+            </div>
+          </div>
+          <div class="voucher-tabs" aria-label="Accounting voucher tabs">
+            <button type="button" data-go-section="payment">Payment</button>
+            <button type="button" data-go-section="contra">Contra</button>
+            <button type="button" data-go-section="receipt">Receipt</button>
+            <button type="button" data-go-section="journal">Journal</button>
+            <button type="button" data-go-section="sales">Sales</button>
+            <button type="button" data-go-section="purchase">Purchase</button>
+            <button type="button" data-go-section="sales-order">Sales Order</button>
+            <button type="button" data-go-section="purchase-order">Purchase Order</button>
+            <button type="button" data-go-section="delivery-challan">Delivery Challan</button>
+            <button type="button" data-go-section="debit-note">Debit Note</button>
+            <button type="button" data-go-section="credit-note">Credit Note</button>
+          </div>
+
+          <form class="form-panel" id="contraForm">
+            <input id="contraEditId" type="hidden">
+            <div class="form-grid">
+              <label>
+                <span>Date</span>
+                <input id="contraDate" type="date" required>
+              </label>
+              <label>
+                <span>Voucher No.</span>
+                <input id="contraNo" type="text" required>
+              </label>
+              <label>
+                <span>Reference No.</span>
+                <input id="contraReference" type="text" placeholder="Transfer ref no.">
+              </label>
+              <label>
+                <span>Transfer From</span>
+                <select id="contraFromLedger" required></select>
+              </label>
+              <label>
+                <span>Transfer To</span>
+                <select id="contraToLedger" required></select>
+              </label>
+              <label>
+                <span>Amount</span>
+                <input id="contraAmount" type="number" min="0" step="0.01" required>
+              </label>
+              <label class="span-2">
+                <span>Narration</span>
+                <input id="contraNarration" type="text" required>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button class="primary-btn" id="contraSubmitBtn" type="submit">Save Contra</button>
+              <button class="ghost-btn" id="clearContraBtn" type="button">Clear</button>
+              <button class="ghost-btn" id="printContraBtn" type="button">Print</button>
+            </div>
+          </form>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Contra Register</h4>
+              <span class="muted" id="contraCount">0 vouchers</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Voucher</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Narration</th>
+                    <th class="num">Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="contraTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="receipt">
+          <div class="section-heading">
+            <div>
+              <h3>Receipt Voucher</h3>
+              <p>Record receipts into cash or bank from any ledger.</p>
+            </div>
+          </div>
+          <div class="voucher-tabs" aria-label="Accounting voucher tabs">
+            <button type="button" data-go-section="payment">Payment</button>
+            <button type="button" data-go-section="contra">Contra</button>
+            <button type="button" data-go-section="receipt">Receipt</button>
+            <button type="button" data-go-section="journal">Journal</button>
+            <button type="button" data-go-section="sales">Sales</button>
+            <button type="button" data-go-section="purchase">Purchase</button>
+            <button type="button" data-go-section="sales-order">Sales Order</button>
+            <button type="button" data-go-section="purchase-order">Purchase Order</button>
+            <button type="button" data-go-section="delivery-challan">Delivery Challan</button>
+            <button type="button" data-go-section="debit-note">Debit Note</button>
+            <button type="button" data-go-section="credit-note">Credit Note</button>
+          </div>
+
+          <form class="form-panel" id="receiptForm">
+            <input id="receiptEditId" type="hidden">
+            <div class="form-grid">
+              <label>
+                <span>Date</span>
+                <input id="receiptDate" type="date" required>
+              </label>
+              <label>
+                <span>Voucher No.</span>
+                <input id="receiptNo" type="text" required>
+              </label>
+              <label>
+                <span>Reference No.</span>
+                <input id="receiptReference" type="text" placeholder="Cheque / UTR / ref no.">
+              </label>
+              <label>
+                <span>Received In</span>
+                <select id="receiptAccount" required></select>
+              </label>
+              <label>
+                <span>From Ledger</span>
+                <select id="receiptParty" required></select>
+                <small class="party-balance-hint" id="receiptPartyHint"></small>
+              </label>
+              <label>
+                <span>Amount</span>
+                <input id="receiptAmount" type="number" min="0" step="0.01" required>
+              </label>
+              <label>
+                <span>Adjust Against</span>
+                <select id="receiptAdjustVoucher"></select>
+              </label>
+              <label class="span-2">
+                <span>Narration</span>
+                <input id="receiptNarration" type="text" required>
+              </label>
+            </div>
+            <div class="outstanding-strip" id="receiptOutstanding">
+              <span>Ledger Balance: <strong id="receiptLedgerBalance">Rs. 0.00</strong></span>
+              <span>Lena Hai: <strong id="receiptReceivable">Rs. 0.00</strong></span>
+              <span>Dena Hai: <strong id="receiptPayable">Rs. 0.00</strong></span>
+              <span>Receipt Ke Baad: <strong id="receiptAfterBalance">Rs. 0.00</strong></span>
+            </div>
+            <div class="party-open-list" id="receiptOpenList"></div>
+            <div class="custom-fields-panel" id="customFields-receipt"></div>
+            <div class="form-actions">
+              <button class="primary-btn" id="receiptSubmitBtn" type="submit">Save Receipt</button>
+              <button class="ghost-btn" id="clearReceiptBtn" type="button">Clear</button>
+              <button class="ghost-btn" id="printReceiptBtn" type="button">Print</button>
+            </div>
+            <div class="custom-button-strip" id="customButtons-receipt"></div>
+          </form>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Receipt Register</h4>
+              <span class="muted" id="receiptCount">0 vouchers</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Voucher</th>
+                    <th>Received In</th>
+                    <th>From Ledger</th>
+                    <th>Narration</th>
+                    <th class="num">Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="receiptTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="journal">
+          <div class="section-heading">
+            <div>
+              <h3>Journal Voucher</h3>
+              <p>Record manual debit and credit ledger adjustments.</p>
+            </div>
+          </div>
+          <div class="voucher-tabs" aria-label="Accounting voucher tabs">
+            <button type="button" data-go-section="payment">Payment</button>
+            <button type="button" data-go-section="contra">Contra</button>
+            <button type="button" data-go-section="receipt">Receipt</button>
+            <button type="button" data-go-section="journal">Journal</button>
+            <button type="button" data-go-section="sales">Sales</button>
+            <button type="button" data-go-section="purchase">Purchase</button>
+            <button type="button" data-go-section="sales-order">Sales Order</button>
+            <button type="button" data-go-section="purchase-order">Purchase Order</button>
+            <button type="button" data-go-section="delivery-challan">Delivery Challan</button>
+            <button type="button" data-go-section="debit-note">Debit Note</button>
+            <button type="button" data-go-section="credit-note">Credit Note</button>
+          </div>
+
+          <form class="form-panel" id="journalForm">
+            <input id="journalEditId" type="hidden">
+            <div class="journal-transfer-panel">
+              <div>
+                <strong>Sales/Purchase Transfer</strong>
+                <span id="journalTransferHint">Sales A/c aur Purchase A/c ke beech direct adjustment.</span>
+              </div>
+              <label>
+                <span>Direction</span>
+                <select id="journalTransferDirection">
+                  <option value="sales-to-purchase">Sales A/c to Purchase A/c</option>
+                  <option value="purchase-to-sales">Purchase A/c to Sales A/c</option>
+                </select>
+              </label>
+              <label>
+                <span>Amount</span>
+                <input id="journalTransferAmount" type="number" min="0" step="0.01" placeholder="0.00">
+              </label>
+              <button class="ghost-btn" id="fillJournalTransferBtn" type="button">Fill Journal</button>
+              <button class="primary-btn" id="saveJournalTransferBtn" type="button">Create Transfer</button>
+            </div>
+            <div class="form-grid">
+              <label>
+                <span>Date</span>
+                <input id="journalDate" type="date" required>
+              </label>
+              <label>
+                <span>Voucher No.</span>
+                <input id="journalNo" type="text" required>
+              </label>
+              <label>
+                <span>Reference No.</span>
+                <input id="journalReference" type="text" placeholder="Adjustment ref no.">
+              </label>
+              <label>
+                <span>Debit Ledger</span>
+                <select id="journalDebitLedger" required></select>
+              </label>
+              <label>
+                <span>Credit Ledger</span>
+                <select id="journalCreditLedger" required></select>
+              </label>
+              <label>
+                <span>Amount</span>
+                <input id="journalAmount" type="number" min="0" step="0.01" required>
+              </label>
+              <label class="span-2">
+                <span>Narration</span>
+                <input id="journalNarration" type="text" required>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button class="primary-btn" id="journalSubmitBtn" type="submit">Save Journal</button>
+              <button class="ghost-btn" id="clearJournalBtn" type="button">Clear</button>
+              <button class="ghost-btn" id="printJournalBtn" type="button">Print</button>
+            </div>
+          </form>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Journal Register</h4>
+              <span class="muted" id="journalCount">0 vouchers</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Voucher</th>
+                    <th>Debit Ledger</th>
+                    <th>Credit Ledger</th>
+                    <th>Narration</th>
+                    <th class="num">Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="journalTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="ledger-report">
+          <div class="section-heading">
+            <div>
+              <h3>Ledger Report</h3>
+              <p>View every debit, credit, and running balance for a selected ledger.</p>
+            </div>
+          </div>
+
+          <div class="form-panel report-filter">
+            <label>
+              <span>Select Ledger</span>
+              <select id="ledgerReportSelect"></select>
+            </label>
+            <label>
+              <span>From Date</span>
+              <input class="report-date-from" type="date">
+            </label>
+            <label>
+              <span>To Date</span>
+              <input class="report-date-to" type="date">
+            </label>
+            <button class="primary-btn" id="refreshLedgerReportBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4 id="ledgerReportTitle">Ledger Report</h4>
+              <span class="muted" id="ledgerReportBalance">Rs. 0.00</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Voucher</th>
+                    <th>Narration</th>
+                    <th class="num">Debit</th>
+                    <th class="num">Credit</th>
+                    <th class="num">Balance</th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerReportTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="outstanding">
+          <div class="section-heading">
+            <div>
+              <h3>Outstanding</h3>
+              <p>Party-wise receivable and payable balances with direct receipt and payment actions.</p>
+            </div>
+          </div>
+
+          <div class="metric-grid outstanding-metrics">
+            <div class="metric-card">
+              <span>Total Receivable</span>
+              <strong id="outstandingReceivableTotal">Rs. 0.00</strong>
+              <small>Customers se lena hai</small>
+            </div>
+            <div class="metric-card">
+              <span>Total Payable</span>
+              <strong id="outstandingPayableTotal">Rs. 0.00</strong>
+              <small>Suppliers ko dena hai</small>
+            </div>
+            <div class="metric-card">
+              <span>Net Position</span>
+              <strong id="outstandingNetTotal">Rs. 0.00</strong>
+              <small>Receivable minus payable</small>
+            </div>
+            <div class="metric-card">
+              <span>Parties</span>
+              <strong id="outstandingPartyCount">0</strong>
+              <small>Non-zero party balances</small>
+            </div>
+          </div>
+
+          <div class="form-panel report-filter all-entry-filter">
+            <label>
+              <span>Search Party</span>
+              <input id="outstandingSearch" type="search" placeholder="Search customer, supplier, phone, GSTIN, state">
+            </label>
+            <label>
+              <span>Balance Type</span>
+              <select id="outstandingType">
+                <option value="all">All Balances</option>
+                <option value="receivable">Lena Hai</option>
+                <option value="payable">Dena Hai</option>
+              </select>
+            </label>
+            <label>
+              <span>As On Date</span>
+              <input id="outstandingAsOn" type="date">
+            </label>
+            <button class="ghost-btn" id="clearOutstandingSearchBtn" type="button">Clear Search</button>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Party Outstanding</h4>
+              <span class="muted" id="outstandingCount">0 parties</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Party</th>
+                    <th>Group</th>
+                    <th>Phone</th>
+                    <th>State</th>
+                    <th class="num">Lena Hai</th>
+                    <th class="num">Dena Hai</th>
+                    <th class="num">Balance</th>
+                    <th>Aging</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="outstandingTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="invoice-outstanding">
+          <div class="section-heading">
+            <div>
+              <h3>Invoice Outstanding</h3>
+              <p>Invoice-wise receivable/payable pending, paid amount, and overdue days.</p>
+            </div>
+            <button class="primary-btn" id="refreshInvoiceOutstandingBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Total Pending</span>
+              <strong id="invoiceOutstandingPending">Rs. 0.00</strong>
+              <small>Open invoice/purchase balance</small>
+            </article>
+            <article class="metric-card">
+              <span>Total Paid</span>
+              <strong id="invoiceOutstandingPaid">Rs. 0.00</strong>
+              <small>Adjusted or auto-matched amount</small>
+            </article>
+            <article class="metric-card">
+              <span>Overdue</span>
+              <strong id="invoiceOutstandingOverdue">Rs. 0.00</strong>
+              <small>Older than due days</small>
+            </article>
+            <article class="metric-card">
+              <span>Open Vouchers</span>
+              <strong id="invoiceOutstandingOpenCount">0</strong>
+              <small>Invoices and purchases pending</small>
+            </article>
+          </div>
+
+          <div class="form-panel report-filter all-entry-filter">
+            <label>
+              <span>Search</span>
+              <input id="invoiceOutstandingSearch" type="search" placeholder="Search party, voucher, item, pending">
+            </label>
+            <label>
+              <span>Type</span>
+              <select id="invoiceOutstandingType">
+                <option value="all">All</option>
+                <option value="receivable">Receivable</option>
+                <option value="payable">Payable</option>
+              </select>
+            </label>
+            <label>
+              <span>Due Days</span>
+              <input id="invoiceOutstandingDueDays" type="number" min="0" step="1" value="30">
+            </label>
+            <label>
+              <span>As On</span>
+              <input id="invoiceOutstandingAsOn" type="date">
+            </label>
+            <button class="ghost-btn" id="clearInvoiceOutstandingBtn" type="button">Clear</button>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Invoice-wise Outstanding</h4>
+              <span class="muted" id="invoiceOutstandingCount">0 rows</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Voucher</th>
+                    <th>Party</th>
+                    <th>Description</th>
+                    <th class="num">Total</th>
+                    <th class="num">Paid / Adjusted</th>
+                    <th class="num">Pending</th>
+                    <th class="num">Age</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="invoiceOutstandingTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="day-book">
+          <div class="section-heading">
+            <div>
+              <h3>Day Book</h3>
+              <p>All vouchers in selected period with debit, credit, print, and edit actions.</p>
+            </div>
+            <button class="primary-btn" id="refreshDayBookBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="form-panel report-filter all-entry-filter">
+            <label>
+              <span>Search Voucher</span>
+              <input id="dayBookSearch" type="search" placeholder="Search voucher, party, ledger, narration, amount">
+            </label>
+            <label>
+              <span>Voucher Type</span>
+              <select id="dayBookType">
+                <option value="all">All Vouchers</option>
+                <option value="sales">Sales</option>
+                <option value="purchase">Purchase</option>
+                <option value="receipt">Receipt</option>
+                <option value="payment">Payment</option>
+                <option value="contra">Contra</option>
+                <option value="journal">Journal</option>
+                <option value="credit-note">Credit Note</option>
+                <option value="debit-note">Debit Note</option>
+              </select>
+            </label>
+            <label>
+              <span>From Date</span>
+              <input class="report-date-from" type="date">
+            </label>
+            <label>
+              <span>To Date</span>
+              <input class="report-date-to" type="date">
+            </label>
+            <button class="ghost-btn" id="clearDayBookSearchBtn" type="button">Clear Search</button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Voucher Count</span>
+              <strong id="dayBookVoucherCount">0</strong>
+              <small>Selected period</small>
+            </article>
+            <article class="metric-card">
+              <span>Total Debit</span>
+              <strong id="dayBookDebitTotal">Rs. 0.00</strong>
+              <small>Accounting entries</small>
+            </article>
+            <article class="metric-card">
+              <span>Total Credit</span>
+              <strong id="dayBookCreditTotal">Rs. 0.00</strong>
+              <small>Accounting entries</small>
+            </article>
+            <article class="metric-card">
+              <span>Voucher Value</span>
+              <strong id="dayBookValueTotal">Rs. 0.00</strong>
+              <small>Document totals</small>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Day Book Register</h4>
+              <span class="muted" id="dayBookCount">0 vouchers</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Voucher</th>
+                    <th>Party / Ledger</th>
+                    <th>Narration</th>
+                    <th class="num">Debit</th>
+                    <th class="num">Credit</th>
+                    <th class="num">Value</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="dayBookTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="cash-bank-book">
+          <div class="section-heading">
+            <div>
+              <h3>Cash/Bank Book</h3>
+              <p>Cash and bank ledger movement with opening, receipt, payment, and closing balances.</p>
+            </div>
+            <button class="primary-btn" id="refreshCashBankBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="form-panel report-filter">
+            <label>
+              <span>Cash / Bank Ledger</span>
+              <select id="cashBankLedger"></select>
+            </label>
+            <label>
+              <span>From Date</span>
+              <input class="report-date-from" type="date">
+            </label>
+            <label>
+              <span>To Date</span>
+              <input class="report-date-to" type="date">
+            </label>
+            <button class="ghost-btn" type="button" data-report-refresh>Apply Period</button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Opening</span>
+              <strong id="cashBankOpening">Rs. 0.00</strong>
+              <small>Before selected period</small>
+            </article>
+            <article class="metric-card">
+              <span>Receipts</span>
+              <strong id="cashBankReceipts">Rs. 0.00</strong>
+              <small>Debit movement</small>
+            </article>
+            <article class="metric-card">
+              <span>Payments</span>
+              <strong id="cashBankPayments">Rs. 0.00</strong>
+              <small>Credit movement</small>
+            </article>
+            <article class="metric-card">
+              <span>Closing</span>
+              <strong id="cashBankClosing">Rs. 0.00</strong>
+              <small>Current balance</small>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4 id="cashBankTitle">Cash/Bank Book</h4>
+              <span class="muted" id="cashBankCount">0 entries</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Voucher</th>
+                    <th>Narration</th>
+                    <th class="num">Receipt</th>
+                    <th class="num">Payment</th>
+                    <th class="num">Balance</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="cashBankTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="stock-ledger">
+          <div class="section-heading">
+            <div>
+              <h3>Stock Ledger</h3>
+              <p>Item-wise stock movement with opening, inward, outward, closing quantity, and value.</p>
+            </div>
+            <button class="primary-btn" id="refreshStockLedgerBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="form-panel report-filter">
+            <label>
+              <span>Stock Item</span>
+              <select id="stockLedgerItem"></select>
+            </label>
+            <label>
+              <span>From Date</span>
+              <input class="report-date-from" id="stockLedgerFrom" type="date">
+            </label>
+            <label>
+              <span>To Date</span>
+              <input class="report-date-to" id="stockLedgerTo" type="date">
+            </label>
+            <button class="ghost-btn" id="clearStockLedgerBtn" type="button">Reset</button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Opening Qty</span>
+              <strong id="stockLedgerOpening">0.00</strong>
+              <small>Before selected period</small>
+            </article>
+            <article class="metric-card">
+              <span>Inward Qty</span>
+              <strong id="stockLedgerInward">0.00</strong>
+              <small>Purchase and sales return</small>
+            </article>
+            <article class="metric-card">
+              <span>Outward Qty</span>
+              <strong id="stockLedgerOutward">0.00</strong>
+              <small>Sales and purchase return</small>
+            </article>
+            <article class="metric-card">
+              <span>Closing Value</span>
+              <strong id="stockLedgerValue">Rs. 0.00</strong>
+              <small>Closing qty x cost rate</small>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4 id="stockLedgerTitle">Stock Ledger</h4>
+              <span class="muted" id="stockLedgerCount">0 entries</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Voucher</th>
+                    <th>Party</th>
+                    <th>Description</th>
+                    <th class="num">Inward</th>
+                    <th class="num">Outward</th>
+                    <th class="num">Rate</th>
+                    <th class="num">Balance Qty</th>
+                    <th class="num">Value</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="stockLedgerTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="ageing">
+          <div class="section-heading">
+            <div>
+              <h3>Ageing</h3>
+              <p>Receivable and payable ageing buckets for party balances.</p>
+            </div>
+            <button class="primary-btn" id="refreshAgeingBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="form-panel report-filter">
+            <label>
+              <span>Balance Type</span>
+              <select id="ageingType">
+                <option value="all">All Balances</option>
+                <option value="receivable">Lena Hai</option>
+                <option value="payable">Dena Hai</option>
+              </select>
+            </label>
+            <label>
+              <span>As On Date</span>
+              <input id="ageingAsOn" type="date">
+            </label>
+            <button class="ghost-btn" id="clearAgeingFilterBtn" type="button">Reset</button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>0-30 Days</span>
+              <strong id="ageingBucket30">Rs. 0.00</strong>
+              <small>Fresh balances</small>
+            </article>
+            <article class="metric-card">
+              <span>31-60 Days</span>
+              <strong id="ageingBucket60">Rs. 0.00</strong>
+              <small>Follow-up needed</small>
+            </article>
+            <article class="metric-card">
+              <span>61-90 Days</span>
+              <strong id="ageingBucket90">Rs. 0.00</strong>
+              <small>Priority follow-up</small>
+            </article>
+            <article class="metric-card">
+              <span>90+ Days</span>
+              <strong id="ageingBucketOlder">Rs. 0.00</strong>
+              <small>Old balances</small>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Ageing Analysis</h4>
+              <span class="muted" id="ageingCount">0 parties</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Party</th>
+                    <th>Type</th>
+                    <th>Last Entry</th>
+                    <th class="num">Days</th>
+                    <th class="num">0-30</th>
+                    <th class="num">31-60</th>
+                    <th class="num">61-90</th>
+                    <th class="num">90+</th>
+                    <th class="num">Balance</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ageingTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="audit-check">
+          <div class="section-heading">
+            <div>
+              <h3>Audit Check</h3>
+              <p>Verify debit-credit balance, missing ledgers, stock links, duplicate vouchers, negative stock, and GST issues.</p>
+            </div>
+            <div class="actions">
+              <button class="ghost-btn" id="repairAuditBtn" type="button">Safe Repair</button>
+              <button class="ghost-btn" id="exportAuditBtn" type="button">Export CSV</button>
+              <button class="primary-btn" id="refreshAuditBtn" type="button">Run Check</button>
+            </div>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Total Issues</span>
+              <strong id="auditIssueTotal">0</strong>
+              <small>All checks combined</small>
+            </article>
+            <article class="metric-card">
+              <span>Critical</span>
+              <strong id="auditCriticalTotal">0</strong>
+              <small>Needs immediate attention</small>
+            </article>
+            <article class="metric-card">
+              <span>Warnings</span>
+              <strong id="auditWarningTotal">0</strong>
+              <small>Review suggested</small>
+            </article>
+            <article class="metric-card">
+              <span>Status</span>
+              <strong id="auditStatusText">OK</strong>
+              <small>Current data health</small>
+            </article>
+          </div>
+
+          <div class="form-panel report-filter all-entry-filter">
+            <label>
+              <span>Search Issue</span>
+              <input id="auditSearch" type="search" placeholder="Search issue, voucher, ledger, item">
+            </label>
+            <label>
+              <span>Issue Type</span>
+              <select id="auditType">
+                <option value="all">All Issues</option>
+                <option value="Debit/Credit">Debit/Credit</option>
+                <option value="Missing Ledger">Missing Ledger</option>
+                <option value="Missing Stock Item">Missing Stock Item</option>
+                <option value="Duplicate Voucher">Duplicate Voucher</option>
+                <option value="Negative Stock">Negative Stock</option>
+                <option value="GST Mismatch">GST Mismatch</option>
+              </select>
+            </label>
+            <label>
+              <span>Severity</span>
+              <select id="auditSeverity">
+                <option value="all">All Severity</option>
+                <option value="Critical">Critical</option>
+                <option value="Warning">Warning</option>
+                <option value="Info">Info</option>
+              </select>
+            </label>
+            <button class="ghost-btn" id="clearAuditFilterBtn" type="button">Clear Filter</button>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>Audit Results</h4>
+              <span class="muted" id="auditCount">0 issues</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Severity</th>
+                    <th>Issue Type</th>
+                    <th>Reference</th>
+                    <th>Details</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="auditTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="invoice">
+          <div class="section-heading">
+            <div>
+              <h3>Invoice</h3>
+              <p>Saved sales invoices with a clean preview and print action.</p>
+            </div>
+            <div class="actions">
+              <button class="ghost-btn" id="invoiceEditBtn" type="button" disabled>Edit</button>
+              <button class="primary-btn" id="invoicePrintBtn" type="button" disabled>Print</button>
+            </div>
+          </div>
+
+          <div class="form-panel report-filter all-entry-filter">
+            <label>
+              <span>Search Invoice</span>
+              <input id="invoiceSearch" type="search" placeholder="Search invoice, customer, date, item, amount">
+            </label>
+            <button class="ghost-btn" id="clearInvoiceSearchBtn" type="button">Clear Search</button>
+          </div>
+
+          <div class="invoice-browser-layout">
+            <article class="panel invoice-list-panel">
+              <div class="panel-header">
+                <h4>Invoice Register</h4>
+                <span class="muted" id="invoiceCount">0 invoices</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Invoice</th>
+                      <th>Date</th>
+                      <th>Customer</th>
+                      <th class="num">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="invoiceTable"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel invoice-preview-panel">
+              <div class="invoice-preview-toolbar">
+                <span id="invoicePreviewTitle">Invoice Preview</span>
+                <button class="table-btn" id="invoicePreviewPrintBtn" type="button" disabled>Print</button>
+              </div>
+              <div class="invoice-preview-stage">
+                <div class="invoice-paper-preview" id="invoicePreview">
+                  <p class="muted">Select an invoice from the register to preview it.</p>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="gst-reports">
+          <div class="section-heading">
+            <div>
+              <h3>GST Reports</h3>
+              <p>GSTR-1 style outward, GSTR-3B summary, and HSN/SAC summary from saved vouchers.</p>
+            </div>
+            <button class="primary-btn" id="refreshGstBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="form-panel report-filter">
+            <label>
+              <span>Search Party / Voucher</span>
+              <input id="gstSearch" type="search" placeholder="Search invoice, party, GSTIN, state">
+            </label>
+            <label>
+              <span>Supply Type</span>
+              <select id="gstSupplyType">
+                <option value="all">All GST Entries</option>
+                <option value="outward">Outward Sales</option>
+                <option value="inward">Input Purchases</option>
+                <option value="b2b">B2B Only</option>
+                <option value="b2c">B2C Only</option>
+                <option value="interstate">Interstate / IGST</option>
+                <option value="intrastate">Same State / CGST+SGST</option>
+              </select>
+            </label>
+            <label>
+              <span>From Date</span>
+              <input class="report-date-from" type="date">
+            </label>
+            <label>
+              <span>To Date</span>
+              <input class="report-date-to" type="date">
+            </label>
+            <button class="ghost-btn" type="button" data-report-refresh>Apply Period</button>
+            <button class="ghost-btn" id="clearGstFilterBtn" type="button">Clear</button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Outward Taxable</span>
+              <strong id="gstOutwardTaxable">Rs. 0.00</strong>
+              <small>Sales minus credit notes</small>
+            </article>
+            <article class="metric-card">
+              <span>Input Taxable</span>
+              <strong id="gstInputTaxable">Rs. 0.00</strong>
+              <small>Purchase minus debit notes</small>
+            </article>
+            <article class="metric-card">
+              <span>GST Payable</span>
+              <strong id="gstNetPayable">Rs. 0.00</strong>
+              <small>Output GST minus input GST</small>
+            </article>
+            <article class="metric-card">
+              <span>Net GST</span>
+              <strong id="gstNetTotal">Rs. 0.00</strong>
+              <small>CGST + SGST + IGST</small>
+            </article>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>B2B Taxable</span>
+              <strong id="gstB2bTaxable">Rs. 0.00</strong>
+              <small>Parties with GSTIN</small>
+            </article>
+            <article class="metric-card">
+              <span>B2C Taxable</span>
+              <strong id="gstB2cTaxable">Rs. 0.00</strong>
+              <small>Parties without GSTIN</small>
+            </article>
+            <article class="metric-card">
+              <span>Interstate IGST</span>
+              <strong id="gstInterstateIgst">Rs. 0.00</strong>
+              <small>Different state supplies</small>
+            </article>
+            <article class="metric-card">
+              <span>Input GST Credit</span>
+              <strong id="gstInputCredit">Rs. 0.00</strong>
+              <small>Eligible purchase GST</small>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h4>GSTR-1 Outward Supplies</h4>
+              <span class="muted" id="gstr1Count">0 invoices</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Invoice</th>
+                    <th>Party</th>
+                    <th>GSTIN</th>
+                    <th>State</th>
+                    <th>GST Mode</th>
+                    <th class="num">Taxable</th>
+                    <th class="num">CGST</th>
+                    <th class="num">SGST</th>
+                    <th class="num">IGST</th>
+                    <th class="num">Total</th>
+                  </tr>
+                </thead>
+                <tbody id="gstr1Table"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="report-grid">
+            <article class="panel">
+              <div class="panel-header">
+                <h4>GSTR-3B Summary</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Particulars</th>
+                      <th class="num">Taxable</th>
+                      <th class="num">CGST</th>
+                      <th class="num">SGST</th>
+                      <th class="num">IGST</th>
+                      <th class="num">Total GST</th>
+                    </tr>
+                  </thead>
+                  <tbody id="gstr3bTable"></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="panel">
+              <div class="panel-header">
+                <h4>HSN/SAC Summary</h4>
+                <span class="muted" id="hsnSummaryCount">0 rows</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>HSN/SAC</th>
+                      <th>Item</th>
+                      <th class="num">Qty</th>
+                      <th class="num">Taxable</th>
+                      <th class="num">CGST</th>
+                      <th class="num">SGST</th>
+                      <th class="num">IGST</th>
+                      <th class="num">GST</th>
+                      <th class="num">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="hsnSummaryTable"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="trial-balance">
+          <div class="section-heading">
+            <div>
+              <h3>Trial Balance</h3>
+              <p>Debit and credit balances generated from saved accounting entries.</p>
+            </div>
+            <button class="primary-btn" id="refreshTrialBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="form-panel report-filter">
+            <label>
+              <span>From Date</span>
+              <input class="report-date-from" type="date">
+            </label>
+            <label>
+              <span>To Date</span>
+              <input class="report-date-to" type="date">
+            </label>
+            <button class="ghost-btn" type="button" data-report-refresh>Apply Period</button>
+          </div>
+
+          <div class="panel">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ledger</th>
+                    <th>Type</th>
+                    <th class="num">Debit</th>
+                    <th class="num">Credit</th>
+                  </tr>
+                </thead>
+                <tbody id="trialTable"></tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="2">Total</th>
+                    <th class="num" id="trialDebitTotal">Rs. 0.00</th>
+                    <th class="num" id="trialCreditTotal">Rs. 0.00</th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="profit-loss">
+          <div class="section-heading">
+            <div>
+              <h3>Profit &amp; Loss</h3>
+              <p>Sales less purchases, calculated from ledger balances.</p>
+            </div>
+            <button class="primary-btn" id="refreshPnlBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="form-panel report-filter">
+            <label>
+              <span>From Date</span>
+              <input class="report-date-from" type="date">
+            </label>
+            <label>
+              <span>To Date</span>
+              <input class="report-date-to" type="date">
+            </label>
+            <button class="ghost-btn" type="button" data-report-refresh>Apply Period</button>
+          </div>
+
+          <div class="report-grid">
+            <article class="panel">
+              <div class="panel-header">
+                <h4>Income</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Particulars</th>
+                      <th class="num">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pnlIncomeTable"></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="panel">
+              <div class="panel-header">
+                <h4>Expenses</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Particulars</th>
+                      <th class="num">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pnlExpenseTable"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+          <div class="total-banner" id="pnlResult">Net Profit: Rs. 0.00</div>
+        </section>
+
+        <section class="view" id="balance-sheet">
+          <div class="section-heading">
+            <div>
+              <h3>Balance Sheet</h3>
+              <p>Assets, liabilities, and current profit balanced from live ledgers.</p>
+            </div>
+            <button class="primary-btn" id="refreshBalanceBtn" type="button">Refresh</button>
+          </div>
+
+          <div class="form-panel report-filter">
+            <label>
+              <span>From Date</span>
+              <input class="report-date-from" type="date">
+            </label>
+            <label>
+              <span>To Date</span>
+              <input class="report-date-to" type="date">
+            </label>
+            <button class="ghost-btn" type="button" data-report-refresh>Apply Period</button>
+          </div>
+
+          <div class="report-grid">
+            <article class="panel">
+              <div class="panel-header">
+                <h4>Assets</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Particulars</th>
+                      <th class="num">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="assetsTable"></tbody>
+                  <tfoot>
+                    <tr>
+                      <th>Total Assets</th>
+                      <th class="num" id="assetsTotal">Rs. 0.00</th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </article>
+            <article class="panel">
+              <div class="panel-header">
+                <h4>Liabilities &amp; Equity</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Particulars</th>
+                      <th class="num">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="liabilitiesTable"></tbody>
+                  <tfoot>
+                    <tr>
+                      <th>Total Liabilities</th>
+                      <th class="num" id="liabilitiesTotal">Rs. 0.00</th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="customize">
+          <div class="section-heading">
+            <div>
+              <h3>Customize</h3>
+              <p>Add your own fields and quick buttons without editing code. Everything is saved in this browser.</p>
+            </div>
+          </div>
+
+          <div class="customize-grid">
+            <form class="form-panel" id="customFieldForm">
+              <input id="customFieldEditId" type="hidden">
+              <div class="panel-header inline-panel-header">
+                <h4>Add Custom Field</h4>
+                <span class="muted">Fields save with the selected screen</span>
+              </div>
+              <div class="form-grid">
+                <label>
+                  <span>Show On Screen</span>
+                  <select id="customFieldScreen"></select>
+                </label>
+                <label>
+                  <span>Field Label</span>
+                  <input id="customFieldLabel" type="text" placeholder="Example: Transport Name" required>
+                </label>
+                <label>
+                  <span>Field Type</span>
+                  <select id="customFieldType">
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="date">Date</option>
+                    <option value="select">Dropdown</option>
+                    <option value="textarea">Long Text</option>
+                    <option value="checkbox">Yes / No</option>
+                  </select>
+                </label>
+                <label class="span-2">
+                  <span>Dropdown Options</span>
+                  <input id="customFieldOptions" type="text" placeholder="Road, Rail, Air">
+                </label>
+                <label>
+                  <span>Default Value</span>
+                  <input id="customFieldDefault" type="text" placeholder="Optional">
+                </label>
+                <label class="check-row">
+                  <input id="customFieldRequired" type="checkbox">
+                  <span>Required</span>
+                </label>
+                <label class="check-row">
+                  <input id="customFieldPrint" type="checkbox" checked>
+                  <span>Show in Print</span>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button class="primary-btn" id="customFieldSubmitBtn" type="submit">Add Field</button>
+                <button class="ghost-btn" id="clearCustomFieldBtn" type="button">Clear</button>
+              </div>
+            </form>
+
+            <form class="form-panel" id="customButtonForm">
+              <input id="customButtonEditId" type="hidden">
+              <div class="panel-header inline-panel-header">
+                <h4>Add Custom Button</h4>
+                <span class="muted">Buttons can save, print, clear, jump, or show message</span>
+              </div>
+              <div class="form-grid">
+                <label>
+                  <span>Show On Screen</span>
+                  <select id="customButtonScreen"></select>
+                </label>
+                <label>
+                  <span>Button Text</span>
+                  <input id="customButtonLabel" type="text" placeholder="Example: Print & Save" required>
+                </label>
+                <label>
+                  <span>Button Action</span>
+                  <select id="customButtonAction">
+                    <option value="save">Save Current Form</option>
+                    <option value="print">Print Current Voucher</option>
+                    <option value="clear">Clear Current Form</option>
+                    <option value="goto">Open Another Screen</option>
+                    <option value="message">Show Message</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Target Screen</span>
+                  <select id="customButtonTarget"></select>
+                </label>
+                <label class="span-2">
+                  <span>Message Text</span>
+                  <input id="customButtonMessage" type="text" placeholder="Message for Show Message action">
+                </label>
+              </div>
+              <div class="form-actions">
+                <button class="primary-btn" id="customButtonSubmitBtn" type="submit">Add Button</button>
+                <button class="ghost-btn" id="clearCustomButtonBtn" type="button">Clear</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="report-grid">
+            <article class="panel">
+              <div class="panel-header">
+                <h4>Custom Fields</h4>
+                <span class="muted" id="customFieldCount">0 fields</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Screen</th>
+                      <th>Label</th>
+                      <th>Type</th>
+                      <th>Print</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="customFieldsTable"></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="panel">
+              <div class="panel-header">
+                <h4>Custom Buttons</h4>
+                <span class="muted" id="customButtonCount">0 buttons</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Screen</th>
+                      <th>Button</th>
+                      <th>Action</th>
+                      <th>Target</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="customButtonsTable"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="print-area" aria-hidden="true"></div>
+
+  <div class="modal-backdrop" id="rentalModal" aria-hidden="true">
+    <section class="rental-modal" role="dialog" aria-modal="true" aria-labelledby="rentalTitle">
+      <div class="group-modal-head">
+        <div>
+          <p class="eyebrow">Paid rental</p>
+          <h3 id="rentalTitle">Speed Accounting Subscription</h3>
+        </div>
+        <button class="ghost-btn compact" id="closeRentalBtn" type="button">Close</button>
+      </div>
+      <div class="rental-grid">
+        <article class="rental-panel">
+          <div class="rental-tabs" role="tablist" aria-label="Account">
+            <button class="active" type="button" data-rental-tab="login">Login</button>
+            <button type="button" data-rental-tab="register">Register</button>
+          </div>
+          <form class="rental-form active" id="rentalLoginForm">
+            <label><span>Email</span><input id="loginEmail" type="email" autocomplete="email" required></label>
+            <label><span>Password</span><input id="loginPassword" type="password" autocomplete="current-password" required></label>
+            <button class="primary-btn" type="submit">Login</button>
+          </form>
+          <form class="rental-form" id="rentalRegisterForm">
+            <label><span>Name</span><input id="registerName" type="text" autocomplete="name" required></label>
+            <label><span>Email</span><input id="registerEmail" type="email" autocomplete="email" required></label>
+            <label><span>Phone</span><input id="registerPhone" type="tel" autocomplete="tel"></label>
+            <label><span>Password</span><input id="registerPassword" type="password" autocomplete="new-password" minlength="6" required></label>
+            <button class="primary-btn" type="submit">Create Account</button>
+          </form>
+          <div class="subscription-box" id="subscriptionBox">
+            <strong>Not signed in</strong>
+            <span>Login or create account to activate paid rental.</span>
+          </div>
+          <button class="ghost-btn compact" id="logoutRentalBtn" type="button" hidden>Logout</button>
+        </article>
+        <article class="rental-panel">
+          <div class="panel-header compact">
+            <h4>Choose Plan</h4>
+            <span class="muted">Razorpay secure checkout</span>
+          </div>
+          <div class="plan-grid" id="rentalPlanGrid">
+            <button class="plan-card active" type="button" data-plan="monthly"><strong>Monthly</strong><span>Rs. 399</span><small>30 days rental</small></button>
+            <button class="plan-card" type="button" data-plan="quarterly"><strong>Quarterly</strong><span>Rs. 1,099</span><small>90 days rental</small></button>
+            <button class="plan-card" type="button" data-plan="semi_annual"><strong>6 Months</strong><span>Rs. 2,050</span><small>180 days rental</small></button>
+            <button class="plan-card" type="button" data-plan="annual"><strong>Annual</strong><span>Rs. 4,199</span><small>365 days rental</small></button>
+            <button class="plan-card" type="button" data-plan="lifetime"><strong>Lifetime</strong><span>Rs. 30,000</span><small>Long-term access</small></button>
+          </div>
+          <button class="primary-btn" id="payRentalBtn" type="button">Pay with Razorpay</button>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="ledgerGroupModal" aria-hidden="true">
+    <section class="group-modal" role="dialog" aria-modal="true" aria-labelledby="ledgerGroupTitle">
+      <div class="group-modal-head">
+        <div>
+          <p class="eyebrow">Quick ledger creation</p>
+          <h3 id="ledgerGroupTitle">Create Party Ledger</h3>
+        </div>
+        <button class="ghost-btn compact" id="closeGroupModalBtn" type="button">Close</button>
+      </div>
+
+      <div class="group-modal-grid">
+        <div class="group-form">
+          <label>
+            <span>Party / Ledger Name</span>
+            <input id="quickLedgerName" type="text" autocomplete="off" placeholder="Enter party name">
+          </label>
+          <label>
+            <span>GSTIN</span>
+            <input id="quickLedgerGstin" type="text" maxlength="15" placeholder="Optional">
+          </label>
+          <label>
+            <span>Phone</span>
+            <input id="quickLedgerPhone" type="tel" placeholder="Optional">
+          </label>
+          <label>
+            <span>State</span>
+            <select id="quickLedgerState"></select>
+          </label>
+          <label>
+            <span>Address</span>
+            <textarea id="quickLedgerAddress" rows="3" placeholder="Party address"></textarea>
+          </label>
+          <div class="selected-group-box">
+            <span>Selected Group</span>
+            <strong id="selectedQuickGroup">Sundry Debtors</strong>
+            <small id="selectedQuickGroupHint">Customer ledger for sales parties</small>
+          </div>
+          <div class="form-actions">
+            <button class="primary-btn" id="saveQuickLedgerBtn" type="button">Create Ledger</button>
+            <button class="ghost-btn" id="cancelQuickLedgerBtn" type="button">Cancel</button>
+          </div>
+        </div>
+
+        <div class="group-picker">
+          <div class="group-picker-tools">
+            <input id="groupSearchInput" type="text" autocomplete="off" placeholder="Search groups">
+            <span>Use ↑ ↓ and Enter</span>
+          </div>
+          <div class="group-list" id="quickGroupList" role="listbox" aria-label="Ledger groups"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="product-picker" id="salesProductPicker" hidden></div>
+
+  <script src="qrcode.min.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="script.js"></script>
+  <script src="rental.js"></script>
+</body>
+</html>
