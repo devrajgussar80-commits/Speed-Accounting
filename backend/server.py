@@ -61,6 +61,12 @@ PLANS = {
     "annual": {"label": "Annual", "amount": 419900, "duration": 365},
     "lifetime": {"label": "Lifetime", "amount": 3000000, "duration": 36500},
 }
+TRIAL_DAYS = int(os.environ.get("TRIAL_DAYS", "5"))
+OWNER_EMAILS = {
+    email.strip().lower()
+    for email in os.environ.get("OWNER_EMAILS", "devrajgussar80@gmail.com").split(",")
+    if email.strip()
+}
 
 
 def now_iso() -> str:
@@ -685,8 +691,16 @@ def format_license_date(value: str) -> str:
         return value
 
 
+def is_owner_user(email: str) -> bool:
+    return email.strip().lower() in OWNER_EMAILS
+
+
 def get_subscription_status(user_id: str) -> dict:
     with db() as connection:
+        user = connection.execute(
+            "SELECT email, created_at FROM users WHERE id = ?",
+            (user_id,),
+        ).fetchone()
         sub = connection.execute(
             """
             SELECT id, plan, status, expires_at
@@ -706,8 +720,49 @@ def get_subscription_status(user_id: str) -> dict:
             (user_id,),
         ).fetchone()
 
+    user_data = dict(user) if user else {}
+    user_email = str(user_data.get("email") or "")
+    created_at_raw = str(user_data.get("created_at") or now_iso())
+    try:
+        created_at = datetime.fromisoformat(created_at_raw)
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+    except ValueError:
+        created_at = datetime.now(timezone.utc)
+    trial_ends_at_dt = created_at + timedelta(days=TRIAL_DAYS)
+    trial_remaining = max(0, (trial_ends_at_dt - datetime.now(timezone.utc)).days + 1)
+    trial_active = trial_ends_at_dt >= datetime.now(timezone.utc)
+    trial_data = {
+        "trialDays": TRIAL_DAYS,
+        "trialActive": trial_active,
+        "trialDaysLeft": trial_remaining,
+        "trialEndsAt": trial_ends_at_dt.isoformat(),
+        "createdAt": created_at.isoformat(),
+    }
+
+    if is_owner_user(user_email):
+        return {
+            **trial_data,
+            "status": "owner",
+            "plan": "owner",
+            "planLabel": "Owner",
+            "expiresAt": "",
+            "licenseKey": "OWNER",
+            "license": {"status": "active", "plan": "owner", "customer_name": user_email},
+            "isOwner": True,
+            "accessAllowed": True,
+        }
+
     if not sub:
-        return {"status": "none", "plan": "trial", "license": None}
+        return {
+            **trial_data,
+            "status": "trial" if trial_active else "expired",
+            "plan": "trial",
+            "planLabel": "5 Day Demo",
+            "license": None,
+            "isOwner": False,
+            "accessAllowed": trial_active,
+        }
 
     expires_at = datetime.fromisoformat(sub["expires_at"])
     if expires_at.tzinfo is None:
@@ -720,12 +775,15 @@ def get_subscription_status(user_id: str) -> dict:
         license_data["status"] = "expired"
 
     return {
+        **trial_data,
         "status": status,
         "plan": plan,
         "planLabel": PLANS.get(plan, {}).get("label", plan),
         "expiresAt": sub["expires_at"],
         "licenseKey": (license_data or {}).get("license_key", ""),
         "license": license_data,
+        "isOwner": False,
+        "accessAllowed": status == "active",
     }
 
 

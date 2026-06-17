@@ -16,6 +16,7 @@
   let user = loadUser();
   let subscription = null;
   let selectedPlan = "monthly";
+  let accessGate = null;
 
   function loadUser() {
     try {
@@ -78,21 +79,84 @@
     if (!user) {
       pill.textContent = "Rental: Not signed in";
       pill.classList.add("local");
-      box.innerHTML = "<strong>Not signed in</strong><span>Login or create account to activate paid rental.</span>";
+      box.innerHTML = "<strong>Not signed in</strong><span>Create account to start 5-day demo.</span>";
       if (logout) logout.hidden = true;
+      renderAccessGate();
       return;
     }
-    if (subscription && subscription.status === "active") {
+    if (subscription && subscription.isOwner) {
+      pill.textContent = "Owner";
+      pill.classList.add("paid");
+      box.innerHTML = `<strong>${escapeHtml(user.name || user.email)}</strong><span>Owner access active. No licence needed.</span>`;
+    } else if (subscription && subscription.status === "active") {
       const label = (PLANS[subscription.plan] || {}).label || subscription.plan;
       pill.textContent = "Rental: " + label;
       pill.classList.add("paid");
       box.innerHTML = `<strong>${escapeHtml(user.name || user.email)}</strong><span>Active ${escapeHtml(label)} plan till ${escapeHtml(formatDate(subscription.expiresAt))}.</span>`;
+    } else if (subscription && subscription.trialActive) {
+      pill.textContent = "Demo: " + subscription.trialDaysLeft + " days left";
+      pill.classList.add("syncing");
+      box.innerHTML = `<strong>${escapeHtml(user.name || user.email)}</strong><span>Free demo active. ${escapeHtml(subscription.trialDaysLeft)} day(s) left.</span>`;
     } else {
-      pill.textContent = "Rental: Payment due";
+      pill.textContent = "Demo expired";
       pill.classList.add("offline");
-      box.innerHTML = `<strong>${escapeHtml(user.name || user.email)}</strong><span>No active subscription. Choose a plan and pay with Razorpay.</span>`;
+      box.innerHTML = `<strong>${escapeHtml(user.name || user.email)}</strong><span>5-day demo expired. Choose a plan and activate licence.</span>`;
     }
     if (logout) logout.hidden = false;
+    renderAccessGate();
+  }
+
+  function ensureAccessGate() {
+    if (accessGate) return accessGate;
+    accessGate = document.createElement("div");
+    accessGate.id = "licenseAccessGate";
+    accessGate.innerHTML = `
+      <div class="license-gate-panel">
+        <div class="brand-mark">SA</div>
+        <h2 id="licenseGateTitle">Speed Accounting Demo</h2>
+        <p id="licenseGateMessage">Create account to start your 5-day free demo.</p>
+        <div class="license-gate-actions">
+          <button class="primary-btn" type="button" id="licenseGatePrimaryBtn">Login / Register</button>
+          <button class="ghost-btn" type="button" id="licenseGatePayBtn">Choose Plan</button>
+        </div>
+      </div>`;
+    document.body.appendChild(accessGate);
+    $("#licenseGatePrimaryBtn").addEventListener("click", () => {
+      setTab(user ? "login" : "register");
+      openModal();
+    });
+    $("#licenseGatePayBtn").addEventListener("click", () => {
+      setTab(user ? "login" : "register");
+      openModal();
+    });
+    return accessGate;
+  }
+
+  function hasAccess() {
+    if (!backendEnabled) return true;
+    if (!user) return false;
+    if (!subscription) return false;
+    return subscription.accessAllowed || subscription.isOwner || subscription.status === "active" || subscription.trialActive;
+  }
+
+  function renderAccessGate() {
+    const gate = ensureAccessGate();
+    const title = $("#licenseGateTitle");
+    const message = $("#licenseGateMessage");
+    if (hasAccess()) {
+      gate.classList.remove("active");
+      document.body.classList.remove("licence-locked");
+      return;
+    }
+    if (!user) {
+      title.textContent = "Start 5-Day Free Demo";
+      message.textContent = "Login or create account. First 5 days are free, then licence is required.";
+    } else {
+      title.textContent = "Demo Expired";
+      message.textContent = "Your 5-day free demo has ended. Activate licence to continue using Speed Accounting.";
+    }
+    document.body.classList.add("licence-locked");
+    gate.classList.add("active");
   }
 
   function setTab(tab) {

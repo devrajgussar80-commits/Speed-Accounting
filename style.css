@@ -1834,6 +1834,65 @@ tfoot th {
   display: flex;
 }
 
+#licenseAccessGate {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(3, 9, 20, 0.86);
+  backdrop-filter: blur(8px);
+}
+
+#licenseAccessGate.active {
+  display: flex;
+}
+
+.licence-locked .app-shell {
+  pointer-events: none;
+}
+
+.licence-locked #startupGateway,
+.licence-locked #loginGateway {
+  display: none !important;
+}
+
+.license-gate-panel {
+  width: min(520px, 94vw);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: #0b1d36;
+  padding: 26px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.license-gate-panel h2 {
+  margin: 0;
+  color: var(--white);
+  font-size: 28px;
+}
+
+.license-gate-panel p {
+  max-width: 420px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.license-gate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
 .rental-modal {
   width: min(980px, 96vw);
   max-height: 90vh;
