@@ -2222,11 +2222,6 @@
     const gateway = $("#startupGateway");
     if (!gateway) return;
     renderStartupGateway();
-    gateway.classList.add("active");
-    setTimeout(() => {
-      const firstCompany = $("#startupCompanyList .startup-company-card");
-      focusAndSelect(firstCompany || $("#startupCreateCompanyBtn"));
-    }, 30);
   }
 
   function hideStartupGateway() {
@@ -8017,6 +8012,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const gate = document.getElementById("loginGateway");
   const btn = document.getElementById("loginBtn");
   if (!gate || !btn) return;
+
+  gate.classList.remove("active");
+  localStorage.setItem("speedLogin", "yes");
 
   if (localStorage.getItem("speedLogin") === "yes") {
     gate.classList.remove("active");

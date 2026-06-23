@@ -2,6 +2,9 @@
   "use strict";
 
   const USER_KEY = "hisaabProRentalUser";
+  const VISITOR_TRIAL_KEY = "hisaabProVisitorTrial";
+  const TRIAL_DAYS = 5;
+  const TRIAL_MS = TRIAL_DAYS * 24 * 60 * 60 * 1000;
   const PLANS = {
     monthly: { label: "Monthly", amount: 399 },
     quarterly: { label: "Quarterly", amount: 1099 },
@@ -17,6 +20,7 @@
   let subscription = null;
   let selectedPlan = "monthly";
   let accessGate = null;
+  let visitorTrial = loadVisitorTrial();
 
   function loadUser() {
     try {
@@ -32,6 +36,28 @@
     if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
     else localStorage.removeItem(USER_KEY);
     renderStatus();
+  }
+
+  function loadVisitorTrial() {
+    const now = Date.now();
+    try {
+      const parsed = JSON.parse(localStorage.getItem(VISITOR_TRIAL_KEY) || "null");
+      if (parsed && Number.isFinite(parsed.startedAt)) return parsed;
+    } catch (error) {
+      // Reset broken local trial data below.
+    }
+    const trial = { startedAt: now };
+    localStorage.setItem(VISITOR_TRIAL_KEY, JSON.stringify(trial));
+    return trial;
+  }
+
+  function visitorTrialDaysLeft() {
+    const expiresAt = Number(visitorTrial.startedAt || 0) + TRIAL_MS;
+    return Math.max(0, Math.ceil((expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
+  }
+
+  function isVisitorTrialActive() {
+    return visitorTrialDaysLeft() > 0;
   }
 
   async function request(path, options) {
@@ -77,9 +103,15 @@
     if (!pill || !box) return;
     pill.classList.remove("local", "online", "offline", "syncing", "paid");
     if (!user) {
-      pill.textContent = "Rental: Not signed in";
-      pill.classList.add("local");
-      box.innerHTML = "<strong>Not signed in</strong><span>Create account to start 5-day demo.</span>";
+      if (isVisitorTrialActive()) {
+        pill.textContent = "Free Demo: " + visitorTrialDaysLeft() + " days left";
+        pill.classList.add("syncing");
+        box.innerHTML = `<strong>Free demo active</strong><span>No login needed for first ${TRIAL_DAYS} days. Licence required after demo.</span>`;
+      } else {
+        pill.textContent = "Demo expired";
+        pill.classList.add("offline");
+        box.innerHTML = "<strong>Demo expired</strong><span>Create account and buy licence to continue.</span>";
+      }
       if (logout) logout.hidden = true;
       renderAccessGate();
       return;
@@ -114,10 +146,10 @@
       <div class="license-gate-panel">
         <div class="brand-mark">SA</div>
         <h2 id="licenseGateTitle">Speed Accounting Demo</h2>
-        <p id="licenseGateMessage">Create account to start your 5-day free demo.</p>
+        <p id="licenseGateMessage">Your 5-day free demo is active.</p>
         <div class="license-gate-actions">
-          <button class="primary-btn" type="button" id="licenseGatePrimaryBtn">Login / Register</button>
-          <button class="ghost-btn" type="button" id="licenseGatePayBtn">Choose Plan</button>
+          <button class="primary-btn" type="button" id="licenseGatePrimaryBtn">Buy Licence</button>
+          <button class="ghost-btn" type="button" id="licenseGatePayBtn">Login / Register</button>
         </div>
       </div>`;
     document.body.appendChild(accessGate);
@@ -134,6 +166,7 @@
 
   function hasAccess() {
     if (!backendEnabled) return true;
+    if (!user && isVisitorTrialActive()) return true;
     if (!user) return false;
     if (!subscription) return false;
     return subscription.accessAllowed || subscription.isOwner || subscription.status === "active" || subscription.trialActive;
@@ -149,8 +182,8 @@
       return;
     }
     if (!user) {
-      title.textContent = "Start 5-Day Free Demo";
-      message.textContent = "Login or create account. First 5 days are free, then licence is required.";
+      title.textContent = "Demo Expired";
+      message.textContent = "Your 5-day free demo has ended. Create account and buy licence to continue.";
     } else {
       title.textContent = "Demo Expired";
       message.textContent = "Your 5-day free demo has ended. Activate licence to continue using Speed Accounting.";
@@ -236,9 +269,9 @@
   async function pay() {
     if (!backendEnabled) throw new Error("Backend start karke http://127.0.0.1:8765/ se app open karo.");
     if (!user) {
-      setTab("login");
+      setTab("register");
       openModal();
-      throw new Error("Payment se pehle login ya register karo.");
+      throw new Error("Licence kharidne ke liye account create ya login karo.");
     }
     if (typeof global.Razorpay !== "function") {
       throw new Error("Razorpay checkout load nahi hua. Internet connection check karo.");

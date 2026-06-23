@@ -1,0 +1,18 @@
+{
+  "name": "Speed Accounting",
+  "short_name": "Speed Accounting",
+  "description": "Small business accounting workspace with vouchers, ledgers, reports, and paid licence access.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#071526",
+  "theme_color": "#071526",
+  "icons": [
+    {
+      "src": "app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
